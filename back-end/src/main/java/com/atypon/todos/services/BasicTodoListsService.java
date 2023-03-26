@@ -63,9 +63,22 @@ public class BasicTodoListsService implements TodoListsService {
     @Override
     public void changeTodoListItemContent(String todoListId, String itemId, String newContent) {
         TodoList todoList = repository.findById(todoListId).orElseThrow();
-        TodoListItem item = todoList.getItems().stream().findFirst().orElseThrow();
+        TodoListItem item = todoList.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow();
         item.setContent(newContent);
-        todoList.getItems().removeIf(t -> t.getId().equals(todoListId));
+        repository.save(todoList);
+    }
+
+    @Override
+    public void changeTodoListItemStatus(String todoListId, String itemId, boolean status) {
+        TodoList todoList = repository.findById(todoListId).orElseThrow();
+        TodoListItem item = todoList.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow();
+        item.setFinished(status);
         repository.save(todoList);
     }
 }

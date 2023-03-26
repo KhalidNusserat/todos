@@ -99,6 +99,20 @@ export class Todos {
         );
     }
 
+    public static async changeTodoListItemStatus(todoListId: string, todoListItemId: string, finished: boolean) {
+        const username = Authentication.getUsername();
+        await API.Axios.put<string>(
+            `/api/v1/users/${username}/todo-lists/${todoListId}/items/${todoListItemId}`,
+            JSON.stringify({finished}),
+            {
+                headers: {
+                    Authorization: `Bearer ${Authentication.getToken()}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+    }
+
     public static async shareTodoList(todoListId: string, expiresAt: string) {
         const username = Authentication.getUsername();
         const response = await API.Axios.post<string>(
@@ -158,12 +172,18 @@ export class Todos {
                 const newTitle = difference.value;
                 Todos.renameTodoList(todoListId, newTitle);
             }
-            else {
+            else if (difference.op === 'replace' && difference.path.length === 3) {
                 const [todoListIndex, , todoListItemIndex] = difference.path as number[];
                 const todoListId = todoLists[todoListIndex].id;
                 const todoListItemId = todoLists[todoListIndex].items[todoListItemIndex].id;
                 const newContent = difference.value;
                 Todos.changeTodoListItemContent(todoListId, todoListItemId, newContent);
+            } else {
+                const [todoListIndex, , todoListItemIndex] = difference.path as number[];
+                const todoListId = todoLists[todoListIndex].id;
+                const todoListItemId = todoLists[todoListIndex].items[todoListItemIndex].id;
+                const finished = difference.value;
+                Todos.changeTodoListItemStatus(todoListId, todoListItemId, finished);
             }
         })
     }

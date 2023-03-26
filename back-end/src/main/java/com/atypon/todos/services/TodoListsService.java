@@ -19,4 +19,6 @@ public interface TodoListsService {
     void renameTodoList(String todoListId, String newTitle);
 
     void changeTodoListItemContent(String todoListId, String itemId, String newContent);
+
+    void changeTodoListItemStatus(String todoListId, String itemId, boolean status);
 }

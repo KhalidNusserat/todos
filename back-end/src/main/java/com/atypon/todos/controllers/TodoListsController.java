@@ -76,12 +76,16 @@ public class TodoListsController {
     public ResponseEntity<String> changeTodoListItemContent(
             @PathVariable String todoListId,
             @PathVariable String itemId,
-            @RequestBody Map<String, String> body) {
+            @RequestBody Map<String, Object> body) {
         try {
-            todoListsService.changeTodoListItemContent(todoListId, itemId, body.get("content"));
+            if (body.containsKey("content")) {
+                todoListsService.changeTodoListItemContent(todoListId, itemId, (String) body.get("content"));
+            } else if (body.containsKey("finished")) {
+                todoListsService.changeTodoListItemStatus(todoListId, itemId, (boolean) body.get("finished"));
+            }
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("There was an error while changing the todo list item's content");
+            return ResponseEntity.internalServerError().body("There was an error while changing the todo list item's content");
         }
     }
 }
